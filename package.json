@@ -1,0 +1,57 @@
+{
+  "name": "vue-file-preview",
+  "version": "1.0.0",
+  "description": "A powerful, pure front-end file preview component for Vue 3 supporting DOCX, PDF, XLSX, PPTX, Markdown, Text, CSV, Images and Media.",
+  "type": "module",
+  "main": "./dist/vue-file-preview.umd.cjs",
+  "module": "./dist/vue-file-preview.js",
+  "types": "./dist/package/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/package/index.d.ts",
+      "import": "./dist/vue-file-preview.js",
+      "require": "./dist/vue-file-preview.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build:lib": "vite build --mode lib",
+    "build:demo": "vite build --mode demo",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "vue3",
+    "file-preview",
+    "docx-preview",
+    "pdf-preview",
+    "xlsx-preview",
+    "pptx-preview",
+    "markdown-preview",
+    "pure-frontend",
+    "vue-component"
+  ],
+  "author": "OpenSource Contributor",
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": "^3.2.0"
+  },
+  "dependencies": {
+    "docx-preview": "^0.3.3",
+    "highlight.js": "^11.9.0",
+    "jszip": "^3.10.1",
+    "marked": "^12.0.0",
+    "pdfjs-dist": "^4.0.379",
+    "vue": "^3.5.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "docx": "^9.1.0",
+    "typescript": "^5.3.0",
+    "vite": "^5.1.0",
+    "vue-tsc": "^2.0.0"
+  }
+}
