@@ -4,12 +4,23 @@
     <strong>高自由度 · 纯前端 · 全格式支持 · 零后端依赖的 Vue 3 文件预览插件库</strong>
   </p>
   <p align="center">
+    <a href="https://milesmading.github.io/vue3-file-preview/"><img src="https://img.shields.io/badge/Live-Demo-brightgreen.svg" alt="Live Demo"></a>
     <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.x-4fc08d.svg" alt="Vue 3"></a>
     <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-3178c6.svg" alt="TypeScript"></a>
     <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-5.x-646cff.svg" alt="Vite"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
   </p>
 </p>
+
+---
+
+## 🌐 实时在线演示 (Live Demo)
+
+👉 **直接在线点击体验**：**[https://milesmading.github.io/vue3-file-preview/](https://milesmading.github.io/vue3-file-preview/)**
+
+无需安装任何环境，支持在网页中直接体验：
+- 📄 DOCX / PDF / XLSX / PPTX / Markdown / Code / SVG 多格式渲染；
+- ☀️ 深浅主题切换、🌐 中英文多语言热更新、按钮插槽扩展及自定义驱动注册。
 
 ---
 
