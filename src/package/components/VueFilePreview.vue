@@ -1,24 +1,52 @@
 <template>
-  <div class="vue-file-preview-wrapper" ref="wrapperRef" :class="{ 'is-fullscreen': isFullscreen }">
-    <!-- 控制工具栏 -->
-    <Toolbar
-      v-if="showToolbar"
-      :fileName="resolvedFileName"
-      :fileType="detectedType"
-      :scale="scale"
-      :showZoom="canZoom"
-      :showRotate="canRotate"
-      @zoom-in="zoomIn"
-      @zoom-out="zoomOut"
-      @rotate="rotateImage"
-      @toggle-fullscreen="toggleFullscreen"
-    />
+  <div
+    class="vue-file-preview-wrapper"
+    ref="wrapperRef"
+    :class="[`theme-${theme}`, { 'is-fullscreen': isFullscreen }]"
+  >
+    <!-- 控制工具栏槽位 -->
+    <slot name="toolbar" :fileName="resolvedFileName" :fileType="detectedType" :scale="scale">
+      <Toolbar
+        v-if="showToolbar"
+        :fileName="resolvedFileName"
+        :fileType="detectedType"
+        :scale="scale"
+        :showZoom="canZoom"
+        :showRotate="canRotate"
+        :theme="theme"
+        :locale="locale"
+        @zoom-in="zoomIn"
+        @zoom-out="zoomOut"
+        @rotate="rotateImage"
+        @toggle-fullscreen="toggleFullscreen"
+      >
+        <template #toolbar-left>
+          <slot name="toolbar-left"></slot>
+        </template>
+        <template #toolbar-right>
+          <slot name="toolbar-right"></slot>
+        </template>
+      </Toolbar>
+    </slot>
 
     <!-- 内容预览主区域 -->
     <div class="preview-content-area">
-      <DocxViewer
-        v-if="detectedType === 'docx'"
+      <!-- 优先判断：如果用户注册了自定义第三方 Renderer -->
+      <component
+        v-if="registeredComponent"
+        :is="registeredComponent"
         :src="src"
+        :fileName="resolvedFileName"
+        :options="options"
+        @load="$emit('load')"
+        @error="e => $emit('error', e)"
+      />
+
+      <!-- 内置核心 Renderer -->
+      <DocxViewer
+        v-else-if="detectedType === 'docx'"
+        :src="src"
+        :options="options?.docx"
         @load="$emit('load')"
         @error="e => $emit('error', e)"
       />
@@ -27,6 +55,7 @@
         v-else-if="detectedType === 'pdf'"
         :src="src"
         :scale="scale"
+        :options="options?.pdf"
         @load="$emit('load')"
         @error="e => $emit('error', e)"
       />
@@ -34,6 +63,7 @@
       <XlsxViewer
         v-else-if="detectedType === 'xlsx' || detectedType === 'csv'"
         :src="src"
+        :options="options?.xlsx"
         @load="$emit('load')"
         @error="e => $emit('error', e)"
       />
@@ -74,12 +104,14 @@
         v-else-if="detectedType === 'pptx'"
         :src="src"
         :fileName="resolvedFileName"
+        :locale="locale"
+        @load="$emit('load')"
+        @error="e => $emit('error', e)"
       />
 
-      <Unsupported
-        v-else
-        :fileName="resolvedFileName"
-      />
+      <slot name="unsupported" v-else :fileName="resolvedFileName">
+        <Unsupported :fileName="resolvedFileName" />
+      </slot>
     </div>
   </div>
 </template>
@@ -87,6 +119,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { detectFileType, SupportedFileType } from '../utils/fileType'
+import { getRegisteredRenderer } from '../utils/registry'
+import { LocaleType } from '../utils/i18n'
 import Toolbar from './Toolbar.vue'
 
 import DocxViewer from './renderers/DocxViewer.vue'
@@ -102,10 +136,15 @@ import Unsupported from './renderers/Unsupported.vue'
 const props = withDefaults(defineProps<{
   src: string | File | Blob | ArrayBuffer
   fileName?: string
-  fileType?: SupportedFileType
+  fileType?: SupportedFileType | string
   showToolbar?: boolean
+  theme?: 'dark' | 'light' | 'auto'
+  locale?: LocaleType
+  options?: Record<string, any>
 }>(), {
-  showToolbar: true
+  showToolbar: true,
+  theme: 'dark',
+  locale: 'zh-CN'
 })
 
 const emit = defineEmits(['load', 'error'])
@@ -127,9 +166,13 @@ const resolvedFileName = computed(() => {
   return 'file'
 })
 
-const detectedType = computed<SupportedFileType>(() => {
+const detectedType = computed<string>(() => {
   if (props.fileType) return props.fileType
   return detectFileType(resolvedFileName.value)
+})
+
+const registeredComponent = computed(() => {
+  return getRegisteredRenderer(detectedType.value)
 })
 
 const canZoom = computed(() => {
@@ -176,11 +219,21 @@ watch(() => props.src, () => {
   min-height: 500px;
   display: flex;
   flex-direction: column;
-  background-color: #0f172a;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.vue-file-preview-wrapper.theme-dark {
+  background-color: #0f172a;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+.vue-file-preview-wrapper.theme-light {
+  background-color: #ffffff;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
 .vue-file-preview-wrapper.is-fullscreen {

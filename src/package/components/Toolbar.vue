@@ -1,25 +1,28 @@
 <template>
-  <div class="preview-toolbar">
+  <div class="preview-toolbar" :class="[`theme-${theme}`]">
     <div class="toolbar-left">
-      <span class="file-badge">{{ fileType.toUpperCase() }}</span>
-      <span class="file-name" :title="fileName">{{ fileName || '未知文件' }}</span>
+      <slot name="toolbar-left">
+        <span class="file-badge">{{ fileType.toUpperCase() }}</span>
+        <span class="file-name" :title="fileName">{{ fileName || 'Document' }}</span>
+      </slot>
     </div>
 
     <div class="toolbar-center">
-      <button v-if="showZoom" class="tool-btn" @click="$emit('zoom-out')" title="缩小">
+      <button v-if="showZoom" class="tool-btn" @click="$emit('zoom-out')" :title="t('zoomOut', locale)">
         <span>-</span>
       </button>
       <span v-if="showZoom" class="zoom-value">{{ Math.round(scale * 100) }}%</span>
-      <button v-if="showZoom" class="tool-btn" @click="$emit('zoom-in')" title="放大">
+      <button v-if="showZoom" class="tool-btn" @click="$emit('zoom-in')" :title="t('zoomIn', locale)">
         <span>+</span>
       </button>
-      <button v-if="showRotate" class="tool-btn" @click="$emit('rotate')" title="旋转">
+      <button v-if="showRotate" class="tool-btn" @click="$emit('rotate')" :title="t('rotate', locale)">
         <span>🔄</span>
       </button>
     </div>
 
     <div class="toolbar-right">
-      <button class="tool-btn" @click="$emit('toggle-fullscreen')" title="全屏切换">
+      <slot name="toolbar-right"></slot>
+      <button class="tool-btn" @click="$emit('toggle-fullscreen')" :title="t('fullscreen', locale)">
         <span>⛶</span>
       </button>
     </div>
@@ -27,13 +30,23 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+import { t, LocaleType } from '../utils/i18n'
+
+withDefaults(defineProps<{
   fileName?: string
   fileType: string
   scale?: number
   showZoom?: boolean
   showRotate?: boolean
-}>()
+  theme?: 'dark' | 'light' | 'auto'
+  locale?: LocaleType
+}>(), {
+  scale: 1,
+  showZoom: false,
+  showRotate: false,
+  theme: 'dark',
+  locale: 'zh-CN'
+})
 
 defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
 </script>
@@ -41,16 +54,55 @@ defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
 <style scoped>
 .preview-toolbar {
   height: 48px;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  color: #f8fafc;
   user-select: none;
   z-index: 100;
+  transition: all 0.2s ease;
+}
+
+/* 深色模式主题 */
+.preview-toolbar.theme-dark {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+.preview-toolbar.theme-dark .tool-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.preview-toolbar.theme-dark .tool-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* 浅色模式主题 */
+.preview-toolbar.theme-light {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.preview-toolbar.theme-light .file-name {
+  color: #1e293b;
+}
+
+.preview-toolbar.theme-light .tool-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.preview-toolbar.theme-light .tool-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
 .toolbar-left {
@@ -74,7 +126,6 @@ defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
 .file-name {
   font-size: 13px;
   font-weight: 500;
-  color: #cbd5e1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -89,7 +140,6 @@ defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
 .zoom-value {
   font-size: 12px;
   font-weight: 600;
-  color: #94a3b8;
   min-width: 44px;
   text-align: center;
 }
@@ -101,9 +151,6 @@ defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
 }
 
 .tool-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
   width: 32px;
   height: 32px;
   border-radius: 6px;
@@ -113,11 +160,5 @@ defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
   cursor: pointer;
   font-size: 14px;
   transition: all 0.15s ease;
-}
-
-.tool-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  transform: translateY(-1px);
 }
 </style>

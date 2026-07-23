@@ -6,6 +6,8 @@ export { VueFilePreview, Toolbar }
 
 export * from './utils/fileType'
 export * from './utils/fileLoader'
+export * from './utils/registry'
+export * from './utils/i18n'
 
 const plugin = {
   install(app: App) {

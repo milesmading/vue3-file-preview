@@ -1,21 +1,30 @@
 <template>
-  <div class="demo-container">
+  <div class="demo-container" :class="[`theme-${currentTheme}`]">
     <!-- Header -->
     <header class="header">
       <div class="brand">
         <div class="logo">🚀</div>
         <div>
-          <h1>Vue File Preview</h1>
-          <p class="subtitle">纯前端 · 全格式 · 零后端依赖的 Vue 3 文件预览插件</p>
+          <h1>vue3-file-previewer</h1>
+          <p class="subtitle">高自由度 · 纯前端 · 全格式 Vue 3 文件预览插件</p>
         </div>
       </div>
       
       <div class="header-actions">
+        <!-- 1. 自由度：主题切换 -->
+        <button class="toggle-btn" @click="toggleTheme">
+          {{ currentTheme === 'dark' ? '☀️ 浅色主题' : '🌙 深色主题' }}
+        </button>
+
+        <!-- 2. 自由度：语言切换 -->
+        <button class="toggle-btn" @click="toggleLocale">
+          🌐 {{ currentLocale === 'zh-CN' ? 'English' : '中文' }}
+        </button>
+
         <label class="upload-btn">
-          <span>📁 上传本地文件测试</span>
+          <span>📁 测试本地文件</span>
           <input type="file" @change="handleFileUpload" style="display: none" />
         </label>
-        <a href="https://github.com" target="_blank" class="github-link">GitHub 开源</a>
       </div>
     </header>
 
@@ -47,9 +56,21 @@
           :src="currentSrc"
           :fileName="currentFileName"
           :fileType="currentFileType"
+          :theme="currentTheme"
+          :locale="currentLocale"
           @load="onLoad"
           @error="onError"
-        />
+        >
+          <!-- 3. 自由度：自定义插槽 Slot (扩展顶栏右侧按钮) -->
+          <template #toolbar-right>
+            <button class="custom-slot-btn" @click="handleCustomDownload" title="自定义下载插槽">
+              📥 下载
+            </button>
+            <button class="custom-slot-btn" @click="handleCustomShare" title="自定义分享插槽">
+              🔗 分享
+            </button>
+          </template>
+        </VueFilePreview>
       </section>
     </main>
   </div>
@@ -57,14 +78,37 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { VueFilePreview } from './package'
+import { VueFilePreview, registerRenderer } from './package'
 import type { SupportedFileType } from './package/utils/fileType'
+import type { LocaleType } from './package/utils/i18n'
+
+// 4. 自由度：注册自定义 3D / CAD 或特定渲染器演示
+registerRenderer('custom-doc', {
+  props: ['fileName'],
+  template: `
+    <div style="padding: 40px; text-align: center; color: #6366f1;">
+      <h2>🧩 这是由 registerRenderer 注册的自定义渲染器！</h2>
+      <p>正在预览自定义扩展文件：{{ fileName }}</p>
+    </div>
+  `
+})
 
 interface PresetItem {
   name: string
   icon: string
-  type: SupportedFileType
+  type: SupportedFileType | string
   src: string | File | ArrayBuffer
+}
+
+const currentTheme = ref<'dark' | 'light'>('dark')
+const currentLocale = ref<LocaleType>('zh-CN')
+
+const toggleTheme = () => {
+  currentTheme.value = currentTheme.value === 'dark' ? 'light' : 'dark'
+}
+
+const toggleLocale = () => {
+  currentLocale.value = currentLocale.value === 'zh-CN' ? 'en-US' : 'zh-CN'
 }
 
 const presets = ref<PresetItem[]>([
@@ -72,13 +116,13 @@ const presets = ref<PresetItem[]>([
     name: '示例 Markdown 笔记.md',
     icon: '📑',
     type: 'md',
-    src: `# Vue File Preview 开源插件库\n\n欢迎使用 **Vue File Preview**！这是一个完全基于**纯前端技术**开发的高性能 Vue 3 文件预览组件库。\n\n### 特性亮点\n- ⚡ **零后端支持**: 所有的 Word、Excel、PDF、Markdown 解析均在浏览器端完成！\n- 🎨 **按需加载**: 不会造成打包体积膨胀。\n- 📱 **极致 UI 设计**: 优雅的工具栏、全屏缩放支持。\n\n\`\`\`typescript\nimport { VueFilePreview } from 'vue-file-preview'\n\`\`\``
+    src: `# Vue File Previewer 插件库\n\n欢迎使用 **Vue File Previewer**！这是一个完全基于**纯前端技术**开发的高性能 Vue 3 文件预览组件库。\n\n### 特性亮点\n- ⚡ **零后端支持**: 所有的 Word、Excel、PDF、Markdown 解析均在浏览器端完成！\n- 🎨 **高自由度**: 支持 Theme 主题、i18n 多语言、Custom Slots 插槽与 Custom Renderer 插件化注册！`
   },
   {
     name: '代码文件 sample.json',
     icon: '💻',
     type: 'json',
-    src: `{\n  "projectName": "vue-file-preview",\n  "version": "1.0.0",\n  "author": "OpenSource Developer",\n  "features": ["DOCX", "PDF", "XLSX", "Markdown", "Code", "Image", "Media"],\n  "license": "MIT"\n}`
+    src: `{\n  "projectName": "vue3-file-previewer",\n  "version": "1.1.0",\n  "author": "milesmading",\n  "features": ["DOCX", "PDF", "XLSX", "Markdown", "Slots", "Custom Renderer"],\n  "license": "MIT"\n}`
   },
   {
     name: '示例 SVG 矢量图.svg',
@@ -91,7 +135,7 @@ const presets = ref<PresetItem[]>([
 const currentPreset = ref<PresetItem>(presets.value[0])
 const currentSrc = ref<string | File | ArrayBuffer>(currentPreset.value.src)
 const currentFileName = ref<string>(currentPreset.value.name)
-const currentFileType = ref<SupportedFileType | undefined>(currentPreset.value.type)
+const currentFileType = ref<string | undefined>(currentPreset.value.type)
 
 const selectPreset = (item: PresetItem) => {
   currentPreset.value = item
@@ -106,17 +150,20 @@ const handleFileUpload = (e: Event) => {
     const file = target.files[0]
     currentSrc.value = file
     currentFileName.value = file.name
-    currentFileType.value = undefined // 自动侦测
+    currentFileType.value = undefined
   }
 }
 
-const onLoad = () => {
-  console.log('文件预览成功完成！')
+const handleCustomDownload = () => {
+  alert(`[插槽触发] 正在自定义下载文件: ${currentFileName.value}`)
 }
 
-const onError = (err: any) => {
-  console.error('文件预览出错:', err)
+const handleCustomShare = () => {
+  alert(`[插槽触发] 链接已复制到剪贴板！`)
 }
+
+const onLoad = () => console.log('文件渲染完成！')
+const onError = (err: any) => console.error('渲染出错:', err)
 </script>
 
 <style>
@@ -128,8 +175,6 @@ const onError = (err: any) => {
 
 body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #030712;
-  color: #f9fafb;
   overflow: hidden;
 }
 
@@ -138,17 +183,35 @@ body {
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  transition: all 0.2s ease;
+}
+
+.demo-container.theme-dark {
+  background-color: #030712;
+  color: #f9fafb;
+}
+
+.demo-container.theme-light {
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
 .header {
   height: 64px;
-  background: rgba(17, 24, 39, 0.8);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.theme-dark .header {
+  background: rgba(17, 24, 39, 0.8);
+}
+
+.theme-light .header {
+  background: #ffffff;
+  border-bottom-color: #e2e8f0;
 }
 
 .brand {
@@ -177,7 +240,24 @@ body {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+}
+
+.toggle-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: inherit;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-light .toggle-btn {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
 }
 
 .upload-btn {
@@ -191,26 +271,6 @@ body {
   transition: all 0.2s ease;
 }
 
-.upload-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-}
-
-.github-link {
-  color: #d1d5db;
-  text-decoration: none;
-  font-size: 13px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 8px 16px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.github-link:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-}
-
 .main-content {
   flex: 1;
   display: flex;
@@ -219,12 +279,20 @@ body {
 
 .sidebar {
   width: 280px;
-  background-color: #0b0f19;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
   padding: 20px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.theme-dark .sidebar {
+  background-color: #0b0f19;
+}
+
+.theme-light .sidebar {
+  background-color: #ffffff;
+  border-right-color: #e2e8f0;
 }
 
 .sidebar h3 {
@@ -253,9 +321,9 @@ body {
   transition: all 0.2s ease;
 }
 
-.preset-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  transform: translateX(2px);
+.theme-light .preset-card {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
 }
 
 .preset-card.active {
@@ -276,7 +344,6 @@ body {
 
 .preset-card .name {
   font-size: 13px;
-  color: #e5e7eb;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -291,7 +358,17 @@ body {
 .stage {
   flex: 1;
   padding: 24px;
-  background-color: #030712;
   overflow: hidden;
+}
+
+.custom-slot-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
 }
 </style>

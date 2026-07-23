@@ -2,20 +2,19 @@
   <div class="pptx-viewer-container" tabindex="0" @keydown="onKeyDown" ref="containerRef">
     <div v-if="loading" class="pptx-loading">
       <div class="spinner"></div>
-      <span>解析 PPTX 幻灯片中...</span>
+      <span>{{ t('loadingPptx', locale) }}</span>
     </div>
 
     <div v-if="error" class="pptx-error">
-      <span>PPTX 解析失败: {{ error }}</span>
+      <span>PPTX Error: {{ error }}</span>
     </div>
 
     <div v-show="!loading && !error" class="pptx-main">
-      <!-- 幻灯片主舞台：点击画面也可翻页 -->
       <div class="slide-stage" @click="handleSlideClick">
         <div class="slide-card" v-if="slides.length > 0">
           <div class="slide-header">
-            <span class="slide-badge">Slide {{ currentIndex + 1 }} / {{ slides.length }}</span>
-            <span class="key-hint">💡 提示：按 ➔ / 键盘右键 / 点击卡片 即可切换下一页</span>
+            <span class="slide-badge">{{ t('slide', locale) }} {{ currentIndex + 1 }} / {{ slides.length }}</span>
+            <span class="key-hint">💡 ➔ / Space / Click</span>
           </div>
 
           <div class="slide-content">
@@ -26,30 +25,15 @@
             >
               {{ block.text }}
             </div>
-
-            <div v-if="currentSlide.images.length > 0" class="slide-images">
-              <img
-                v-for="(imgSrc, imgIdx) in currentSlide.images"
-                :key="imgIdx"
-                :src="imgSrc"
-                class="slide-img"
-                alt="Slide Image"
-              />
-            </div>
-
-            <div v-if="currentSlide.blocks.length === 0 && currentSlide.images.length === 0" class="empty-slide">
-              <span>(空白幻灯片页)</span>
-            </div>
           </div>
         </div>
       </div>
 
-      <!-- 底部播放导航控制条 -->
       <div class="pptx-controls" v-if="slides.length > 1">
-        <button class="nav-btn" :disabled="currentIndex === 0" @click.stop="prevSlide">◀ 上一页</button>
+        <button class="nav-btn" :disabled="currentIndex === 0" @click.stop="prevSlide">◀ {{ t('prevPage', locale) }}</button>
         <div class="slide-thumbnails">
           <button
-            v-for="(slide, idx) in slides"
+            v-for="(_, idx) in slides"
             :key="idx"
             class="thumb-btn"
             :class="{ active: currentIndex === idx }"
@@ -58,7 +42,7 @@
             {{ idx + 1 }}
           </button>
         </div>
-        <button class="nav-btn" :disabled="currentIndex === slides.length - 1" @click.stop="nextSlide">下一页 ▶</button>
+        <button class="nav-btn" :disabled="currentIndex === slides.length - 1" @click.stop="nextSlide">{{ t('nextPage', locale) }} ▶</button>
       </div>
     </div>
   </div>
@@ -68,6 +52,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import JSZip from 'jszip'
 import { loadFileAsArrayBuffer } from '../../utils/fileLoader'
+import { t, LocaleType } from '../../utils/i18n'
 
 interface SlideBlock {
   text: string
@@ -76,13 +61,15 @@ interface SlideBlock {
 
 interface SlideData {
   blocks: SlideBlock[]
-  images: string[]
 }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   src: string | File | Blob | ArrayBuffer
   fileName?: string
-}>()
+  locale?: LocaleType
+}>(), {
+  locale: 'zh-CN'
+})
 
 const emit = defineEmits(['load', 'error'])
 
@@ -93,7 +80,7 @@ const slides = ref<SlideData[]>([])
 const currentIndex = ref(0)
 
 const currentSlide = computed<SlideData>(() => {
-  return slides.value[currentIndex.value] || { blocks: [], images: [] }
+  return slides.value[currentIndex.value] || { blocks: [] }
 })
 
 const prevSlide = () => {
@@ -104,17 +91,14 @@ const nextSlide = () => {
   if (currentIndex.value < slides.value.length - 1) {
     currentIndex.value++
   } else {
-    // 最后一页循环回到第 1 页
     currentIndex.value = 0
   }
 }
 
-// 点击幻灯片画面自动切换下一页
 const handleSlideClick = () => {
   nextSlide()
 }
 
-// 键盘左右方向键 (← / →) 与空格键控制翻页
 const onKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'PageDown') {
     e.preventDefault()
@@ -156,9 +140,8 @@ const parsePPTX = async () => {
       const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
 
       const blocks: SlideBlock[] = []
-      const images: string[] = []
-
       const paragraphs = xmlDoc.getElementsByTagName('a:p')
+
       for (let i = 0; i < paragraphs.length; i++) {
         const p = paragraphs[i]
         const textRuns = p.getElementsByTagName('a:t')
@@ -169,14 +152,11 @@ const parsePPTX = async () => {
 
         if (pText.trim()) {
           const isTitle = i === 0 || pText.length < 30
-          blocks.push({
-            text: pText.trim(),
-            isTitle
-          })
+          blocks.push({ text: pText.trim(), isTitle })
         }
       }
 
-      slides.value.push({ blocks, images })
+      slides.value.push({ blocks })
     }
 
     loading.value = false
@@ -206,7 +186,7 @@ watch(() => props.src, () => {
 .pptx-viewer-container {
   width: 100%;
   height: 100%;
-  background-color: #0b0f19;
+  background-color: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -272,12 +252,7 @@ watch(() => props.src, () => {
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.slide-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 30px 60px -12px rgba(244, 63, 94, 0.15);
+  transition: transform 0.15s ease;
 }
 
 .slide-header {
@@ -326,17 +301,11 @@ watch(() => props.src, () => {
   line-height: 1.6;
 }
 
-.empty-slide {
-  color: #64748b;
-  font-style: italic;
-  text-align: center;
-}
-
 .pptx-controls {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(30, 41, 59, 0.85);
   backdrop-filter: blur(10px);
   padding: 8px 20px;
   border-radius: 30px;
@@ -380,7 +349,6 @@ watch(() => props.src, () => {
   color: #94a3b8;
   font-size: 12px;
   font-weight: 600;
-
   display: flex;
   align-items: center;
   justify-content: center;

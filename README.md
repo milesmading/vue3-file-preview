@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">🚀 vue3-file-previewer</h1>
   <p align="center">
-    <strong>纯前端 · 全格式支持 · 零后端依赖的 Vue 3 文件预览插件库</strong>
+    <strong>高自由度 · 纯前端 · 全格式支持 · 零后端依赖的 Vue 3 文件预览插件库</strong>
   </p>
   <p align="center">
     <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.x-4fc08d.svg" alt="Vue 3"></a>
@@ -13,13 +13,13 @@
 
 ---
 
-## ✨ 特性亮点
+## ✨ 5 大核心高自由度特性 (v1.1.0)
 
-- ⚡ **零后端依赖**：所有的 Word、Excel、PDF、PPTX、Markdown 等解析与图形绘制均在浏览器客户端本地完成，隐私安全度极高。
-- 📊 **全面覆盖主流格式**：支持 Word (`.docx`/`.doc`)、Excel (`.xlsx`/`.xls`/`.csv`)、PPT (`.pptx`/`.ppt`)、PDF (`.pdf`) 等办公文件。
-- 📦 **按需异步加载**：底层解析引擎支持 Code-Splitting 动态分包，不会导致宿主应用打包体积膨胀。
-- 🎨 **现代化 UI 工具栏**：提供内置高颜值玻璃化控制条，支持全屏、缩放、旋转、翻页与 Excel 多 Sheet 标签切换。
-- 💻 **TypeScript 原生支持**：使用 TS 全面重构，提供完整的组件类型推导与 Prop 提示。
+- 🎨 **主题深浅自如**：支持 `:theme="'dark' | 'light'"` 深色与浅色极简主题，完美契合系统 UI。
+- 🛠️ **全套 Vue Slots 扩展**：开放 `#toolbar-left`、`#toolbar-right` 插槽，可自由添加下载、分享、打印等自定义按钮。
+- 🧩 **插件化自定义渲染器**：暴露 `registerRenderer('dwg', CustomComponent)`，开发者可自由扩展 3D 模型 `.stl`、CAD 图纸 `.dwg` 等自定义格式驱动。
+- 🌐 **国际化 (i18n)**：原生支持中英文 `:locale="'zh-CN' | 'en-US'"` 自动无缝切换。
+- ⚙️ **原生参数透传**：支持通过 `:options="{ docx: {...}, pdf: {...} }"` 微调底层驱动原生参数。
 
 ---
 
@@ -34,70 +34,58 @@
 | **Markdown 笔记** | `.md` | `marked` | 支持 Markdown 渲染与代码块语法高亮 |
 | **文本 / 代码 / JSON** | `.txt`, `.json`, `.js` | `highlight.js` | 支持 JSON 缩进排版与代码高亮 |
 | **图像与音视频** | `.png`, `.jpg`, `.svg`, `.mp4`, `.mp3` | HTML5 原生 | 支持图片放大缩放、旋转、音视频播放 |
+| **自定义扩展格式** | 任意后缀 | 扩展渲染器 | 通过 `registerRenderer` 自由扩展第三方格式 |
 
 ---
 
 ## 📦 安装指南
 
-使用 npm / pnpm / yarn 安装包：
-
 ```bash
 npm install vue3-file-previewer
 # 或
 pnpm add vue3-file-previewer
-# 或
-yarn add vue3-file-previewer
 ```
 
 ---
 
-## 🚀 快速使用
+## 🚀 高自由度用法示例
 
-### 1. 组件局部引入 (推荐)
+### 1. 自定义主题、语言与按钮插槽 (Slots)
 
 ```vue
 <template>
-  <div class="preview-container">
+  <div style="height: 650px;">
     <VueFilePreview 
-      :src="fileUrlOrBlob" 
-      :fileName="docName" 
-      @load="onLoad" 
-      @error="onError" 
-    />
+      :src="fileUrl" 
+      fileName="文档.docx" 
+      theme="light"
+      locale="en-US"
+    >
+      <!-- 自定义扩展控制栏右侧按钮 -->
+      <template #toolbar-right>
+        <button @click="onDownload">📥 Download</button>
+      </template>
+    </VueFilePreview>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { VueFilePreview } from 'vue3-file-previewer'
-import 'vue3-file-previewer/dist/vue3-file-preview.css'
+import 'vue3-file-previewer/dist/vue3-file-previewer.css'
 
-const fileUrlOrBlob = ref('https://example.com/demo.docx')
-const docName = ref('示例文档.docx')
-
-const onLoad = () => console.log('文件渲染完成！')
-const onError = (err) => console.error('加载失败:', err)
+const fileUrl = 'https://example.com/demo.docx'
+const onDownload = () => alert('下载文件！')
 </script>
-
-<style scoped>
-.preview-container {
-  width: 100%;
-  height: 650px;
-}
-</style>
 ```
 
-### 2. 全局 Plugin 挂载
+### 2. 插件化注册自定义格式驱动 (Plugin Driver)
 
 ```typescript
-import { createApp } from 'vue'
-import App from './App.vue'
-import VueFilePreview from 'vue3-file-previewer'
-import 'vue3-file-previewer/dist/vue3-file-preview.css'
+import { registerRenderer } from 'vue3-file-previewer'
+import CadViewerComponent from './CadViewerComponent.vue'
 
-const app = createApp(App)
-app.use(VueFilePreview)
-app.mount('#app')
+// 注册 CAD .dwg 图纸渲染驱动
+registerRenderer('dwg', CadViewerComponent)
 ```
 
 ---
@@ -108,36 +96,22 @@ app.mount('#app')
 
 | 属性名 (Prop) | 类型 (Type) | 默认值 (Default) | 说明 |
 | :--- | :--- | :--- | :--- |
-| `src` **(必传)** | `string \| File \| Blob \| ArrayBuffer` | — | 文件输入源，支持网络 URL、File 对象、Blob 或二进制数组 |
+| `src` **(必传)** | `string \| File \| Blob \| ArrayBuffer` | — | 文件输入源，支持 URL、File、Blob 或二进制数组 |
 | `fileName` | `string` | — | 文件名（用于智能识别类型与工具栏标题显示） |
 | `fileType` | `string` | — | 手动指定文件类型（不传则通过后缀名自动侦测） |
+| `theme` | `'dark' \| 'light'` | `'dark'` | 界面主题外观切换 |
+| `locale` | `'zh-CN' \| 'en-US'` | `'zh-CN'` | 界面语言包 |
 | `showToolbar` | `boolean` | `true` | 是否显示顶部控制工具栏 |
+| `options` | `Record<string, any>` | `{}` | 透传给底层引擎（docx, pdf, xlsx）的原生配置参数 |
 
-### Events 事件列表
+### Slots 插槽列表
 
-| 事件名 (Event) | 回调参数 | 说明 |
-| :--- | :--- | :--- |
-| `@load` | `(data?: any) => void` | 当文件解码并成功渲染时触发 |
-| `@error` | `(error: any) => void` | 当文件下载、解码或渲染发生错误时触发 |
-
----
-
-## 🛠️ 本地开发与测试
-
-```bash
-# 克隆仓库
-git clone https://github.com/milesmading/vue3-file-preview.git
-
-# 安装依赖
-cd vue3-file-preview
-npm install
-
-# 启动本地开发服务
-npm run dev
-
-# 打包 npm 发布库文件
-npm run build:lib
-```
+| 插槽名 (Slot) | 说明 |
+| :--- | :--- |
+| `#toolbar` | 完全自定义顶部控制栏 |
+| `#toolbar-left` | 自定义控制栏左侧标识或 Logo 区域 |
+| `#toolbar-right` | 在控制栏右侧添加自定义按钮（如下载、分享、打印） |
+| `#unsupported` | 自定义未支持格式的展示卡片 |
 
 ---
 
