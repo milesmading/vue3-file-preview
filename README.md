@@ -16,6 +16,7 @@
 ## ✨ 特性亮点
 
 - ⚡ **零后端依赖**：所有的 Word、Excel、PDF、PPTX、Markdown 等解析与图形绘制均在浏览器客户端本地完成，隐私安全度极高。
+- 📊 **全面覆盖主流格式**：完美支持 Word (`.docx`/`.doc`)、Excel (`.xlsx`/`.xls`/`.csv`)、PDF (`.pdf`)、PPT (`.pptx`) 等办公文件。
 - 📦 **按需异步加载**：底层解析引擎支持 Code-Splitting 动态分包，不会导致宿主应用打包体积膨胀。
 - 🎨 **现代化 UI 工具栏**：提供内置高颜值玻璃化控制条，支持全屏、缩放、旋转、翻页与 Excel 多 Sheet 标签切换。
 - 💻 **TypeScript 原生支持**：使用 TS 全面重构，提供完整的组件类型推导与 Prop 提示。
@@ -26,9 +27,9 @@
 
 | 文件格式 | 扩展名 | 渲染驱动 | 功能支持 |
 | :--- | :--- | :--- | :--- |
-| **Microsoft Word** | `.docx` | `docx-preview` | 支持复杂排版、标题、列表、段落样式渲染 |
-| **Microsoft Excel** | `.xlsx`, `.xls` | `xlsx` | 支持多 Sheet 工作表切换、高对比度表格视图 |
-| **Microsoft PowerPoint**| `.pptx` | `JSZip` + XML | 支持多页 Slide 切换、键盘左右方向键 `➔` 翻页 |
+| **Microsoft Word** | `.docx`, `.doc` | `docx-preview` | 支持排版、标题、列表、段落样式渲染 |
+| **Microsoft Excel** | `.xlsx`, `.xls`, `.csv` | `xlsx` | 支持 `.xls` / `.xlsx` / `.csv` 多 Sheet 表格切换 |
+| **Microsoft PowerPoint**| `.pptx`, `.ppt` | `JSZip` + XML | 支持多页 Slide 切换、键盘左右方向键 `➔` 翻页 |
 | **PDF 文档** | `.pdf` | `pdfjs-dist` | 支持多页 Canvas 逐页渲染与比例缩放 |
 | **Markdown 笔记** | `.md` | `marked` | 支持 Markdown 渲染与代码块语法高亮 |
 | **文本 / 代码 / JSON** | `.txt`, `.json`, `.js` | `highlight.js` | 支持 JSON 缩进排版与代码高亮 |
