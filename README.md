@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">🚀 vue3-files-preview</h1>
+  <h1 align="center">🚀 @milesmading/vue3-file-preview</h1>
   <p align="center">
     <strong>纯前端 · 全格式支持 · 零后端依赖的 Vue 3 文件预览插件库</strong>
   </p>
@@ -42,11 +42,11 @@
 使用 npm / pnpm / yarn 安装包：
 
 ```bash
-npm install vue3-files-preview
+npm install @milesmading/vue3-file-preview
 # 或
-pnpm add vue3-files-preview
+pnpm add @milesmading/vue3-file-preview
 # 或
-yarn add vue3-files-preview
+yarn add @milesmading/vue3-file-preview
 ```
 
 ---
@@ -69,8 +69,8 @@ yarn add vue3-files-preview
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { VueFilePreview } from 'vue3-files-preview'
-import 'vue3-files-preview/dist/vue3-files-preview.css'
+import { VueFilePreview } from '@milesmading/vue3-file-preview'
+import '@milesmading/vue3-file-preview/dist/vue3-file-preview.css'
 
 const fileUrlOrBlob = ref('https://example.com/demo.docx')
 const docName = ref('示例文档.docx')
@@ -92,8 +92,8 @@ const onError = (err) => console.error('加载失败:', err)
 ```typescript
 import { createApp } from 'vue'
 import App from './App.vue'
-import VueFilePreview from 'vue3-files-preview'
-import 'vue3-files-preview/dist/vue3-files-preview.css'
+import VueFilePreview from '@milesmading/vue3-file-preview'
+import '@milesmading/vue3-file-preview/dist/vue3-file-preview.css'
 
 const app = createApp(App)
 app.use(VueFilePreview)
