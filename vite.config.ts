@@ -16,8 +16,8 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       lib: {
         entry: path.resolve(__dirname, 'src/package/index.ts'),
-        name: 'Vue3FilePreview',
-        fileName: (format) => `vue3-file-preview.${format === 'es' ? 'js' : 'umd.cjs'}`
+        name: 'Vue3FilesPreview',
+        fileName: (format) => `vue3-files-preview.${format === 'es' ? 'js' : 'umd.cjs'}`
       },
       rollupOptions: {
         external: ['vue'],

@@ -1,16 +1,16 @@
 {
-  "name": "vue3-file-preview",
+  "name": "vue3-files-preview",
   "version": "1.0.0",
   "description": "A powerful, pure front-end file preview component for Vue 3 supporting DOCX, PDF, XLSX, PPTX, Markdown, Text, CSV, Images and Media.",
   "type": "module",
-  "main": "./dist/vue3-file-preview.umd.cjs",
-  "module": "./dist/vue3-file-preview.js",
+  "main": "./dist/vue3-files-preview.umd.cjs",
+  "module": "./dist/vue3-files-preview.js",
   "types": "./dist/package/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/package/index.d.ts",
-      "import": "./dist/vue3-file-preview.js",
-      "require": "./dist/vue3-file-preview.umd.cjs"
+      "import": "./dist/vue3-files-preview.js",
+      "require": "./dist/vue3-files-preview.umd.cjs"
     }
   },
   "files": [
@@ -25,7 +25,7 @@
   "keywords": [
     "vue3",
     "file-preview",
-    "vue3-file-preview",
+    "vue3-files-preview",
     "docx-preview",
     "pdf-preview",
     "xlsx-preview",
