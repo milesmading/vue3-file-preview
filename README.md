@@ -1,7 +1,7 @@
 <p align="center">
-  <h1 align="center">🚀 Vue File Preview</h1>
+  <h1 align="center">🚀 vue3-file-preview</h1>
   <p align="center">
-    <strong>纯前端 · 全格式支持 · 零后端依赖的 Vue 3 文件预览组件库</strong>
+    <strong>纯前端 · 全格式支持 · 零后端依赖的 Vue 3 文件预览插件库</strong>
   </p>
   <p align="center">
     <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.x-4fc08d.svg" alt="Vue 3"></a>
@@ -41,11 +41,11 @@
 使用 npm / pnpm / yarn 安装包：
 
 ```bash
-npm install vue-file-preview
+npm install vue3-file-preview
 # 或
-pnpm add vue-file-preview
+pnpm add vue3-file-preview
 # 或
-yarn add vue-file-preview
+yarn add vue3-file-preview
 ```
 
 ---
@@ -68,8 +68,8 @@ yarn add vue-file-preview
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { VueFilePreview } from 'vue-file-preview'
-import 'vue-file-preview/dist/vue-file-preview.css'
+import { VueFilePreview } from 'vue3-file-preview'
+import 'vue3-file-preview/dist/vue3-file-preview.css'
 
 const fileUrlOrBlob = ref('https://example.com/demo.docx')
 const docName = ref('示例文档.docx')
@@ -91,8 +91,8 @@ const onError = (err) => console.error('加载失败:', err)
 ```typescript
 import { createApp } from 'vue'
 import App from './App.vue'
-import VueFilePreview from 'vue-file-preview'
-import 'vue-file-preview/dist/vue-file-preview.css'
+import VueFilePreview from 'vue3-file-preview'
+import 'vue3-file-preview/dist/vue3-file-preview.css'
 
 const app = createApp(App)
 app.use(VueFilePreview)
@@ -125,10 +125,10 @@ app.mount('#app')
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-username/vue-file-preview.git
+git clone https://github.com/your-username/vue3-file-preview.git
 
 # 安装依赖
-cd vue-file-preview
+cd vue3-file-preview
 npm install
 
 # 启动本地开发服务
