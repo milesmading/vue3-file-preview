@@ -1,5 +1,5 @@
 {
-  "name": "@milesmading/vue3-file-preview",
+  "name": "vue3-file-previewer",
   "version": "1.0.0",
   "description": "A powerful, pure front-end file preview component for Vue 3 supporting DOCX, PDF, XLSX, PPTX, Markdown, Text, CSV, Images and Media.",
   "type": "module",
@@ -25,7 +25,7 @@
   "keywords": [
     "vue3",
     "file-preview",
-    "vue3-file-preview",
+    "vue3-file-previewer",
     "docx-preview",
     "pdf-preview",
     "xlsx-preview",
