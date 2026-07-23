@@ -19,17 +19,18 @@ export interface TranslationSchema {
   download: string
   page: string
   total: string
+  pdfPages: string
 }
 
 export const locales: Record<LocaleType, TranslationSchema> = {
   'zh-CN': {
-    loadingDocx: '解析 DOCX 文档中...',
+    loadingDocx: '正在解析 DOCX 文档...',
     loadingPdf: '正在读取 PDF...',
-    loadingXlsx: '解析 Excel 数据中...',
-    loadingMd: '加载 Markdown 中...',
-    loadingText: '读取文本中...',
-    loadingImage: '加载图片中...',
-    loadingPptx: '解析 PPTX 幻灯片中...',
+    loadingXlsx: '正在解析 Excel 数据表...',
+    loadingMd: '正在加载 Markdown...',
+    loadingText: '正在读取文本文件...',
+    loadingImage: '正在加载图片...',
+    loadingPptx: '正在解析 PPTX 幻灯片...',
     nextPage: '下一页',
     prevPage: '上一页',
     slide: '幻灯片',
@@ -40,16 +41,17 @@ export const locales: Record<LocaleType, TranslationSchema> = {
     unsupported: '暂不支持直接预览该格式',
     download: '下载源文件',
     page: '页',
-    total: '共'
+    total: '共',
+    pdfPages: '共计页面'
   },
   'en-US': {
     loadingDocx: 'Parsing DOCX document...',
-    loadingPdf: 'Loading PDF...',
+    loadingPdf: 'Loading PDF document...',
     loadingXlsx: 'Parsing Excel spreadsheet...',
-    loadingMd: 'Loading Markdown...',
-    loadingText: 'Reading text...',
+    loadingMd: 'Loading Markdown note...',
+    loadingText: 'Reading text file...',
     loadingImage: 'Loading image...',
-    loadingPptx: 'Parsing PPTX slides...',
+    loadingPptx: 'Parsing PPTX presentation...',
     nextPage: 'Next',
     prevPage: 'Prev',
     slide: 'Slide',
@@ -60,7 +62,8 @@ export const locales: Record<LocaleType, TranslationSchema> = {
     unsupported: 'Preview not supported for this format',
     download: 'Download File',
     page: 'Page',
-    total: 'Total'
+    total: 'Total',
+    pdfPages: 'Total Pages'
   }
 }
 

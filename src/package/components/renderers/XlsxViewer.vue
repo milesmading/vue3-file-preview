@@ -2,21 +2,20 @@
   <div class="xlsx-viewer-container">
     <div v-if="loading" class="xlsx-loading">
       <div class="spinner"></div>
-      <span>解析 Excel 数据中...</span>
+      <span>{{ t('loadingXlsx', locale) }}</span>
     </div>
 
     <div v-if="error" class="xlsx-error">
-      <span>加载 Excel 失败: {{ error }}</span>
+      <span>Excel Error: {{ error }}</span>
     </div>
 
     <template v-if="!loading && !error">
-      <!-- 工作表 Table 内容 -->
       <div class="table-wrapper">
         <table class="excel-table">
           <thead>
             <tr>
               <th class="row-header">#</th>
-              <th v-for="(col, index) in columns" :key="index">
+              <th v-for="(_, index) in columns" :key="index">
                 {{ getColumnName(index) }}
               </th>
             </tr>
@@ -24,7 +23,7 @@
           <tbody>
             <tr v-for="(row, rowIndex) in currentSheetData" :key="rowIndex">
               <td class="row-header">{{ rowIndex + 1 }}</td>
-              <td v-for="(cell, colIndex) in columns" :key="colIndex">
+              <td v-for="(_, colIndex) in columns" :key="colIndex">
                 {{ row[colIndex] ?? '' }}
               </td>
             </tr>
@@ -32,7 +31,6 @@
         </table>
       </div>
 
-      <!-- 底部工作表 (Sheet) 切换标签栏 -->
       <div class="sheet-tabs" v-if="sheetNames.length > 0">
         <button
           v-for="name in sheetNames"
@@ -52,10 +50,15 @@
 import { ref, onMounted, watch } from 'vue'
 import * as XLSX from 'xlsx'
 import { loadFileAsArrayBuffer } from '../../utils/fileLoader'
+import { t, LocaleType } from '../../utils/i18n'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   src: string | File | Blob | ArrayBuffer
-}>()
+  locale?: LocaleType
+  options?: any
+}>(), {
+  locale: 'zh-CN'
+})
 
 const emit = defineEmits(['load', 'error'])
 
@@ -67,7 +70,6 @@ const currentSheet = ref('')
 const currentSheetData = ref<any[][]>([])
 const columns = ref<number>(0)
 
-// Excel 列字母转换规则 A, B, C... Z, AA, AB...
 const getColumnName = (n: number): string => {
   let name = ''
   while (n >= 0) {
@@ -81,10 +83,9 @@ const switchSheet = (sheetName: string) => {
   if (!workbook.value) return
   currentSheet.value = sheetName
   const worksheet = workbook.value.Sheets[sheetName]
-  const data: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' })
+  const data: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', ...props.options })
   currentSheetData.value = data
   
-  // 计算最大列数
   let maxCols = 0
   data.forEach(row => {
     if (row.length > maxCols) maxCols = row.length
@@ -98,7 +99,7 @@ const loadExcel = async () => {
 
   try {
     const arrayBuffer = await loadFileAsArrayBuffer(props.src)
-    const wb = XLSX.read(arrayBuffer, { type: 'array' })
+    const wb = XLSX.read(arrayBuffer, { type: 'array', ...props.options })
     workbook.value = wb
     sheetNames.value = wb.SheetNames
 
@@ -130,7 +131,7 @@ watch(() => props.src, () => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f8fafc;
+  background-color: inherit;
   overflow: hidden;
 }
 
@@ -168,7 +169,7 @@ watch(() => props.src, () => {
   border-collapse: collapse;
   width: 100%;
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cbd5e1;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   font-size: 13px;
 }
@@ -216,11 +217,6 @@ watch(() => props.src, () => {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
-}
-
-.sheet-tab:hover {
-  background-color: #ffffff;
-  color: #0f172a;
 }
 
 .sheet-tab.active {

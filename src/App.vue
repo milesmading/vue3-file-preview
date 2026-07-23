@@ -6,23 +6,23 @@
         <div class="logo">🚀</div>
         <div>
           <h1>vue3-file-previewer</h1>
-          <p class="subtitle">高自由度 · 纯前端 · 全格式 Vue 3 文件预览插件</p>
+          <p class="subtitle">{{ isEn ? 'Pure Frontend · Multi-Format Vue 3 File Preview Plugin' : '高自由度 · 纯前端 · 全格式 Vue 3 文件预览插件' }}</p>
         </div>
       </div>
       
       <div class="header-actions">
         <!-- 1. 自由度：主题切换 -->
         <button class="toggle-btn" @click="toggleTheme">
-          {{ currentTheme === 'dark' ? '☀️ 浅色主题' : '🌙 深色主题' }}
+          {{ currentTheme === 'dark' ? (isEn ? '☀️ Light Theme' : '☀️ 浅色主题') : (isEn ? '🌙 Dark Theme' : '🌙 深色主题') }}
         </button>
 
         <!-- 2. 自由度：语言切换 -->
-        <button class="toggle-btn" @click="toggleLocale">
-          🌐 {{ currentLocale === 'zh-CN' ? 'English' : '中文' }}
+        <button class="toggle-btn lang-btn" @click="toggleLocale">
+          🌐 {{ isEn ? 'Language: English' : '语言: 中文' }}
         </button>
 
         <label class="upload-btn">
-          <span>📁 测试本地文件</span>
+          <span>📁 {{ isEn ? 'Test Local File' : '测试本地文件' }}</span>
           <input type="file" @change="handleFileUpload" style="display: none" />
         </label>
       </div>
@@ -32,7 +32,7 @@
     <main class="main-content">
       <!-- Sidebar / Preset Selector -->
       <aside class="sidebar">
-        <h3>支持的预览格式</h3>
+        <h3>{{ isEn ? 'Supported Formats' : '支持的预览格式' }}</h3>
         <div class="preset-list">
           <button
             v-for="item in presets"
@@ -43,7 +43,7 @@
           >
             <span class="icon">{{ item.icon }}</span>
             <div class="info">
-              <span class="name">{{ item.name }}</span>
+              <span class="name">{{ isEn ? item.nameEn : item.name }}</span>
               <span class="type-tag">{{ item.type.toUpperCase() }}</span>
             </div>
           </button>
@@ -61,13 +61,13 @@
           @load="onLoad"
           @error="onError"
         >
-          <!-- 3. 自由度：自定义插槽 Slot (扩展顶栏右侧按钮) -->
+          <!-- 3. 自由度：自定义插槽 Slot -->
           <template #toolbar-right>
-            <button class="custom-slot-btn" @click="handleCustomDownload" title="自定义下载插槽">
-              📥 下载
+            <button class="custom-slot-btn" @click="handleCustomDownload">
+              📥 {{ isEn ? 'Download' : '下载' }}
             </button>
-            <button class="custom-slot-btn" @click="handleCustomShare" title="自定义分享插槽">
-              🔗 分享
+            <button class="custom-slot-btn" @click="handleCustomShare">
+              🔗 {{ isEn ? 'Share' : '分享' }}
             </button>
           </template>
         </VueFilePreview>
@@ -77,24 +77,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { VueFilePreview, registerRenderer } from './package'
 import type { SupportedFileType } from './package/utils/fileType'
 import type { LocaleType } from './package/utils/i18n'
 
-// 4. 自由度：注册自定义 3D / CAD 或特定渲染器演示
 registerRenderer('custom-doc', {
   props: ['fileName'],
   template: `
     <div style="padding: 40px; text-align: center; color: #6366f1;">
-      <h2>🧩 这是由 registerRenderer 注册的自定义渲染器！</h2>
-      <p>正在预览自定义扩展文件：{{ fileName }}</p>
+      <h2>🧩 Custom Renderer Registered via registerRenderer!</h2>
+      <p>Previewing custom format: {{ fileName }}</p>
     </div>
   `
 })
 
 interface PresetItem {
   name: string
+  nameEn: string
   icon: string
   type: SupportedFileType | string
   src: string | File | ArrayBuffer
@@ -102,6 +102,8 @@ interface PresetItem {
 
 const currentTheme = ref<'dark' | 'light'>('dark')
 const currentLocale = ref<LocaleType>('zh-CN')
+
+const isEn = computed(() => currentLocale.value === 'en-US')
 
 const toggleTheme = () => {
   currentTheme.value = currentTheme.value === 'dark' ? 'light' : 'dark'
@@ -114,18 +116,21 @@ const toggleLocale = () => {
 const presets = ref<PresetItem[]>([
   {
     name: '示例 Markdown 笔记.md',
+    nameEn: 'Sample Markdown Note.md',
     icon: '📑',
     type: 'md',
     src: `# Vue File Previewer 插件库\n\n欢迎使用 **Vue File Previewer**！这是一个完全基于**纯前端技术**开发的高性能 Vue 3 文件预览组件库。\n\n### 特性亮点\n- ⚡ **零后端支持**: 所有的 Word、Excel、PDF、Markdown 解析均在浏览器端完成！\n- 🎨 **高自由度**: 支持 Theme 主题、i18n 多语言、Custom Slots 插槽与 Custom Renderer 插件化注册！`
   },
   {
     name: '代码文件 sample.json',
+    nameEn: 'Code Sample.json',
     icon: '💻',
     type: 'json',
     src: `{\n  "projectName": "vue3-file-previewer",\n  "version": "1.1.0",\n  "author": "milesmading",\n  "features": ["DOCX", "PDF", "XLSX", "Markdown", "Slots", "Custom Renderer"],\n  "license": "MIT"\n}`
   },
   {
     name: '示例 SVG 矢量图.svg',
+    nameEn: 'Sample SVG Vector.svg',
     icon: '🖼️',
     type: 'image',
     src: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="250" viewBox="0 0 400 250"><rect width="400" height="250" fill="%231e1b4b"/><circle cx="200" cy="125" r="80" fill="%236366f1" opacity="0.8"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23ffffff" font-family="sans-serif" font-size="20" font-weight="bold">Vue File Preview SVG</text></svg>`
@@ -155,11 +160,11 @@ const handleFileUpload = (e: Event) => {
 }
 
 const handleCustomDownload = () => {
-  alert(`[插槽触发] 正在自定义下载文件: ${currentFileName.value}`)
+  alert(isEn.value ? `[Slot] Downloading file: ${currentFileName.value}` : `[插槽触发] 正在下载文件: ${currentFileName.value}`)
 }
 
 const handleCustomShare = () => {
-  alert(`[插槽触发] 链接已复制到剪贴板！`)
+  alert(isEn.value ? '[Slot] Link copied to clipboard!' : '[插槽触发] 链接已复制到剪贴板！')
 }
 
 const onLoad = () => console.log('文件渲染完成！')
@@ -253,6 +258,12 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.lang-btn {
+  background: rgba(99, 102, 241, 0.2) !important;
+  border-color: #6366f1 !important;
+  color: #a5b4fc !important;
 }
 
 .theme-light .toggle-btn {

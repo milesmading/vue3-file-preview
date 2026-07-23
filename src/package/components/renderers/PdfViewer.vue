@@ -2,11 +2,11 @@
   <div class="pdf-viewer-container" ref="containerRef">
     <div v-if="loading" class="pdf-loading">
       <div class="spinner"></div>
-      <span>正在读取 PDF (共 {{ totalPages }} 页)...</span>
+      <span>{{ t('loadingPdf', locale) }} ({{ t('total', locale) }} {{ totalPages }} {{ t('page', locale) }})</span>
     </div>
     
     <div v-if="error" class="pdf-error">
-      <span>加载 PDF 失败: {{ error }}</span>
+      <span>PDF Error: {{ error }}</span>
     </div>
 
     <div v-show="!loading && !error" class="pdf-pages" :style="{ transform: `scale(${scale})`, transformOrigin: 'top center' }">
@@ -24,15 +24,18 @@
 import { ref, onMounted, watch, nextTick } from 'vue'
 import * as pdfjsLib from 'pdfjs-dist'
 import { loadFileAsArrayBuffer } from '../../utils/fileLoader'
+import { t, LocaleType } from '../../utils/i18n'
 
-// 配置 PDF Worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
 
 const props = withDefaults(defineProps<{
   src: string | File | Blob | ArrayBuffer
   scale?: number
+  locale?: LocaleType
+  options?: any
 }>(), {
-  scale: 1.0
+  scale: 1.0,
+  locale: 'zh-CN'
 })
 
 const emit = defineEmits(['load', 'error'])
@@ -65,7 +68,8 @@ const renderPage = async (pageNum: number) => {
 
   const renderContext = {
     canvasContext: context,
-    viewport: viewport
+    viewport: viewport,
+    ...props.options
   }
   await page.render(renderContext).promise
 }
@@ -83,7 +87,6 @@ const loadPdf = async () => {
 
     await nextTick()
 
-    // 渲染所有页面
     for (let i = 1; i <= totalPages.value; i++) {
       await renderPage(i)
     }
@@ -111,7 +114,7 @@ watch(() => props.src, () => {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: #334155;
+  background-color: inherit;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -125,7 +128,7 @@ watch(() => props.src, () => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #f8fafc;
+  color: #94a3b8;
   font-size: 14px;
   margin-top: 40px;
 }
@@ -151,7 +154,7 @@ watch(() => props.src, () => {
 }
 
 .pdf-page-canvas {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
   border-radius: 4px;
   background-color: #ffffff;
   max-width: 100%;

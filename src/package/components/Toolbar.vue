@@ -8,21 +8,22 @@
     </div>
 
     <div class="toolbar-center">
-      <button v-if="showZoom" class="tool-btn" @click="$emit('zoom-out')" :title="t('zoomOut', locale)">
+      <button v-if="showZoom" class="tool-btn" @click="$emit('zoom-out')" :title="zoomOutTitle">
         <span>-</span>
       </button>
       <span v-if="showZoom" class="zoom-value">{{ Math.round(scale * 100) }}%</span>
-      <button v-if="showZoom" class="tool-btn" @click="$emit('zoom-in')" :title="t('zoomIn', locale)">
+      <button v-if="showZoom" class="tool-btn" @click="$emit('zoom-in')" :title="zoomInTitle">
         <span>+</span>
       </button>
-      <button v-if="showRotate" class="tool-btn" @click="$emit('rotate')" :title="t('rotate', locale)">
+      <button v-if="showRotate" class="tool-btn" @click="$emit('rotate')" :title="rotateTitle">
         <span>🔄</span>
       </button>
     </div>
 
     <div class="toolbar-right">
       <slot name="toolbar-right"></slot>
-      <button class="tool-btn" @click="$emit('toggle-fullscreen')" :title="t('fullscreen', locale)">
+      <span class="lang-tag">{{ locale === 'en-US' ? 'EN' : 'CN' }}</span>
+      <button class="tool-btn" @click="$emit('toggle-fullscreen')" :title="fullscreenTitle">
         <span>⛶</span>
       </button>
     </div>
@@ -30,9 +31,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { t, LocaleType } from '../utils/i18n'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   fileName?: string
   fileType: string
   scale?: number
@@ -49,6 +51,11 @@ withDefaults(defineProps<{
 })
 
 defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
+
+const zoomInTitle = computed(() => t('zoomIn', props.locale))
+const zoomOutTitle = computed(() => t('zoomOut', props.locale))
+const rotateTitle = computed(() => t('rotate', props.locale))
+const fullscreenTitle = computed(() => t('fullscreen', props.locale))
 </script>
 
 <style scoped>
@@ -63,7 +70,6 @@ defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
   transition: all 0.2s ease;
 }
 
-/* 深色模式主题 */
 .preview-toolbar.theme-dark {
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(12px);
@@ -82,7 +88,6 @@ defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
   color: #ffffff;
 }
 
-/* 浅色模式主题 */
 .preview-toolbar.theme-light {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
@@ -148,6 +153,16 @@ defineEmits(['zoom-in', 'zoom-out', 'rotate', 'toggle-fullscreen'])
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.lang-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
 .tool-btn {

@@ -2,10 +2,10 @@
   <div class="docx-viewer-container" ref="containerRef">
     <div v-if="loading" class="docx-loading">
       <div class="spinner"></div>
-      <span>解析 DOCX 文档中...</span>
+      <span>{{ t('loadingDocx', locale) }}</span>
     </div>
     <div v-if="error" class="docx-error">
-      <span>解析 DOCX 失败: {{ error }}</span>
+      <span>DOCX Error: {{ error }}</span>
     </div>
     <div ref="bodyRef" class="docx-body"></div>
   </div>
@@ -15,10 +15,15 @@
 import { ref, onMounted, watch } from 'vue'
 import { renderAsync } from 'docx-preview'
 import { loadFileAsArrayBuffer } from '../../utils/fileLoader'
+import { t, LocaleType } from '../../utils/i18n'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   src: string | File | Blob | ArrayBuffer
-}>()
+  locale?: LocaleType
+  options?: any
+}>(), {
+  locale: 'zh-CN'
+})
 
 const emit = defineEmits(['load', 'error'])
 
@@ -40,7 +45,8 @@ const renderDocx = async () => {
       inWrapper: true,
       ignoreWidth: false,
       ignoreHeight: false,
-      experimental: false
+      experimental: false,
+      ...props.options
     })
     loading.value = false
     emit('load')
@@ -65,7 +71,7 @@ watch(() => props.src, () => {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: #f1f5f9;
+  background-color: inherit;
   display: flex;
   justify-content: center;
   padding: 20px;
